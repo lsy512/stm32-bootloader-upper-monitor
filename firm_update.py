@@ -6,13 +6,16 @@ import decimal
 
 def crc_js(data_in,length):
     crc_cal=0
-    for i in range(1,length):
+    for i in range(0,length):
+        #print binascii.b2a_hex(data_in[i])
+
         temp=ord(data_in[i])
        # print temp
         crc_cal  =  crc_cal + temp
     crc_cal_h=crc_cal>>8
     crc_cal_l=crc_cal&255
     #print crc_cal_h,crc_cal_l
+    
     return crc_cal_h|crc_cal_l
     #return crc_cal
 
@@ -36,7 +39,7 @@ print for_sum
 
 
 try:
-    t = serial.Serial('com22',115200)
+    t = serial.Serial('com22',9600)
 except Exception, e:
     print 'open serial failed.'
     exit(1) 
@@ -50,8 +53,18 @@ print 'send start'
 n = t.write(byte_start)
 time.sleep(1)
 
+str_r = t.read(20)
+#crc_cal1=str(crc_js(str_r,19))
+#print type(str_r[19]),str_r[19]
+#print type(crc_cal1),crc_cal1
+
+#if str[19]==crc_cal1:
+#    print binascii.b2a_hex(str)
+
 print 'send firm'
 
+print for_sum
+j=0
 for i in range(1,for_sum):
     i_count=(i-1)*32
     newarr = byte[i_count:i_count+32]
@@ -63,18 +76,17 @@ for i in range(1,for_sum):
     
     crc_end= crc_js(newarr,32)
     newarr.append(crc_end)
-    #print newarr
         
     n = t.write(newarr)
-    time.sleep(0.01)
     true=1
     while true:
         str = t.read(20)
-        print str
-    #print str
-    print round(float(i)/for_sum,3)
-    #print i
-
+        t.flushInput()
+        true=0
+    #print round(float(i)/for_sum,3)
+    #time.sleep(0.01)
+    #j=j+1
+    #print j
   
 time.sleep(1)
 n = t.write(byte_end)
